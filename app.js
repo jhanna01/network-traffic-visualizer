@@ -18,14 +18,41 @@ app.get('/index.html', function(req, res){
 
 
 app.get('/visualization.json', function(req, res) {
-  db.query("START source=node(1,3,5,7,9,11) "
-           + "MATCH source-[]->destination "
-           + "RETURN source.mac, destination.mac", function(err, results) {
+
+  // Returns list of all nodes
+  db.query("START n = node(*) RETURN n.ipaddr", function(err, results) {
     if (err) {
       console.log("e: " + err);
     }
 
-    //res.writeHead(200, {'Content-Type': 'text/json'});
+    // // transform the JSON
+    // var nodes = []; // list of all the systems
+    // var links = []; // nodes[i] -> nodes[j]
+
+    // var i = 0;
+    // for (key in results) {
+    //   nodes[i] = { ip: results[key].ipaddr };
+    // }
+
+  // FIXME: NEED TO FIX ASYNC ISSUE HERE
+  // Returns links between nodes
+  db.query("START source = node(*) MATCH source-[r:PACKET_TO]->dest RETURN source.ipaddr, dest.ipaddr", function(err, results) {
+    if (err) {
+      console.log("e: " + err);
+    }
+
+
+
+    // var i = 0;
+    // for (key in results) {
+    //   links[i] = { source: };
+    // }
+
+    // for (key in results) {
+
+    // }
+
+    res.writeHead(200, {'Content-Type': 'text/json'});
     res.end(JSON.stringify(results));
 
     console.log(JSON.stringify(results));
