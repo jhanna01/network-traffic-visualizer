@@ -16,11 +16,22 @@ app.get('/index.html', function(req, res){
   });
 });
 
+app.get('/visualize.js', function(req, res){
+  fs.readFile('visualize.js', function (err, data) {
+    if (err) {
+      res.writeHead(500);
+      return res.end('Error loading');
+    }
+    res.writeHead(200, {'Content-Type': 'text/javascript'});
+    res.end(data);
+  });
+});
+
 
 app.get('/visualization.json', function(req, res) {
 
   var index = 0;
-  var indexTable = {};
+  var indexTable = [];
 
   // Returns list of all nodes
   db.query("START source = node(*) MATCH source-[r:PACKET_TO]->dest RETURN source.ipaddr, dest.ipaddr", function(err, results) {
@@ -28,9 +39,19 @@ app.get('/visualization.json', function(req, res) {
       console.log("e: " + err);
     }
 
+    console.log(indexTable);
+    /*indexTable['one'] = 1;
+    indexTable['two'] = 2;*/
     // Put the IP addresses into the table, along with their index position as the key
     for (var k in results) {
-      indexTable[results[k['n.ipaddr']]] = k;
+      var result = results[k]['source.ipaddr'];
+      if (-1 == indexTable.indexOf(result)) {
+        indexTable.push(result);  
+      }
+
+      /**console.log(k);
+      console.log(results[k]);
+      console.log(results[k]['source.ipaddr']);*/
     }
 
     console.log(indexTable);
@@ -41,7 +62,7 @@ app.get('/visualization.json', function(req, res) {
 
 
     res.writeHead(200, {'Content-Type': 'text/json'});
-    res.end(JSON.stringify(results));
+    res.end(JSON.stringify({nodes: indexTable}));
 
     //console.log(JSON.stringify(results));
 
