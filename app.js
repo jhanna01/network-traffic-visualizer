@@ -19,45 +19,44 @@ app.get('/index.html', function(req, res){
 
 app.get('/visualization.json', function(req, res) {
 
+  var index = 0;
+  var indexTable = {};
+
   // Returns list of all nodes
-  db.query("START n = node(*) RETURN n.ipaddr", function(err, results) {
-    if (err) {
-      console.log("e: " + err);
-    }
-
-    // // transform the JSON
-    // var nodes = []; // list of all the systems
-    // var links = []; // nodes[i] -> nodes[j]
-
-    // var i = 0;
-    // for (key in results) {
-    //   nodes[i] = { ip: results[key].ipaddr };
-    // }
-
-  // FIXME: NEED TO FIX ASYNC ISSUE HERE
-  // Returns links between nodes
   db.query("START source = node(*) MATCH source-[r:PACKET_TO]->dest RETURN source.ipaddr, dest.ipaddr", function(err, results) {
     if (err) {
       console.log("e: " + err);
     }
 
+    // Put the IP addresses into the table, along with their index position as the key
+    for (var k in results) {
+      indexTable[results[k['n.ipaddr']]] = k;
+    }
 
+    console.log(indexTable);
 
-    // var i = 0;
-    // for (key in results) {
-    //   links[i] = { source: };
-    // }
+    for (var j in indexTable) {
 
-    // for (key in results) {
+    }
 
-    // }
 
     res.writeHead(200, {'Content-Type': 'text/json'});
     res.end(JSON.stringify(results));
 
-    console.log(JSON.stringify(results));
+    //console.log(JSON.stringify(results));
+
+  });
+
+
+  // Returns links between nodes
+  db.query("START source = node(*) MATCH source-[r:PACKET_TO]->dest RETURN source.ipaddr, dest.ipaddr", function(err, results) {
+      if (err) {
+        console.log("e: " + err);
+      }
   });
   
+
+  
 });
-app.listen(3000);
+app.listen(3010);
 console.log('Listening on port 3000');
