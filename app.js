@@ -31,49 +31,47 @@ app.get('/visualize.js', function(req, res){
 app.get('/visualization.json', function(req, res) {
 
   var index = 0;
-  var indexTable = [];
+  var nodes = [];
+  var links = [];
 
   // Returns list of all nodes
-  db.query("START source = node(*) MATCH source-[r:PACKET_TO]->dest RETURN source.ipaddr, dest.ipaddr", function(err, results) {
+  db.query("START n = node(*) RETURN n.ipaddr", function(err, results) {
     if (err) {
       console.log("e: " + err);
     }
 
-    console.log(indexTable);
-    /*indexTable['one'] = 1;
-    indexTable['two'] = 2;*/
-    // Put the IP addresses into the table, along with their index position as the key
+    // Put the IP addresses into the array
     for (var k in results) {
-      var result = results[k]['source.ipaddr'];
-      if (-1 == indexTable.indexOf(result)) {
-        indexTable.push(result);  
-      }
-
-      /**console.log(k);
-      console.log(results[k]);
-      console.log(results[k]['source.ipaddr']);*/
+      var result = results[k]['n.ipaddr'];
+      nodes.push(result);  
     }
 
-    console.log(indexTable);
-
-    for (var j in indexTable) {
-
-    }
-
+    console.log(nodes);
 
     res.writeHead(200, {'Content-Type': 'text/json'});
-    res.end(JSON.stringify({nodes: indexTable}));
+    res.end(JSON.stringify({nodes: nodes}));
 
     //console.log(JSON.stringify(results));
 
   });
 
-
   // Returns links between nodes
   db.query("START source = node(*) MATCH source-[r:PACKET_TO]->dest RETURN source.ipaddr, dest.ipaddr", function(err, results) {
+
       if (err) {
         console.log("e: " + err);
       }
+
+    // Put the connect links (edges) into the array 
+    for (var k in results) {
+      var source = results[k]['source.ipaddr'];
+      var target = results[k]['dest.ipaddr']
+      links.push({source: nodes.indexOf(source), target: nodes.indexOf(target)});  
+      console.log({source: nodes.indexOf(source), target: nodes.indexOf(target)});
+    }
+
+    console.log(JSON.stringify({links: links}));
+
   });
   
 
