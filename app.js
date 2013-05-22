@@ -36,7 +36,7 @@ app.get('/visualization.json', function(req, res) {
   var test  = [];
 
   // Returns list of all nodes
-  db.query("START n = node(*) RETURN n.ipaddr", function(err, results) {
+  db.query("START n = node(*) RETURN n.ipaddr AS IP", function(err, results) {
     if (err) {
       console.log("e: " + err);
     }
@@ -44,24 +44,30 @@ app.get('/visualization.json', function(req, res) {
     var result;
     // Put the IP addresses into the array
     for (var k in results) {
-      result = results[k]['n.ipaddr'];
-      nodes.push(result);  
+
+      result = results[k]['IP'];
+      //console.log(result);
+      //nodes.push(result);  
+      nodes[result] = k;
     }
-    test[result] = true;
 
-    console.log(test);
-
-    console.log(nodes);
+    //test[result] = true;
+    //console.log(nodes[result]);
+    // console.log(nodes);
+    //console.log(result);
+    
+    
+    
 
     res.writeHead(200, {'Content-Type': 'text/json'});
     res.end(JSON.stringify({nodes: nodes}));
 
-    //console.log(JSON.stringify(results));
+    console.log(JSON.stringify(results));
 
   });
 
   // Returns links between nodes
-  db.query("START source = node(*) MATCH source-[r:PACKET_TO]->dest RETURN source.ipaddr, dest.ipaddr", function(err, results) {
+  db.query("START source = node(*) MATCH source-[r:PACKET_TO]->dest RETURN source.ipaddr, dest.ipaddr, r.length", function(err, results) {
 
       if (err) {
         console.log("e: " + err);
@@ -70,12 +76,14 @@ app.get('/visualization.json', function(req, res) {
     // Put the connect links (edges) into the array 
     for (var k in results) {
       var source = results[k]['source.ipaddr'];
-      var target = results[k]['dest.ipaddr']
-      links.push({source: nodes.indexOf(source), target: nodes.indexOf(target)});  
-      console.log({source: nodes.indexOf(source), target: nodes.indexOf(target)});
+      var target = results[k]['dest.ipaddr'];
+      var length = results[k]['r.length'];
+      links.push({source: nodes[source], target: nodes[target], size: length});  
+      //console.log({source: nodes.indexOf(source), target: nodes.indexOf(target)});
     }
 
     console.log(JSON.stringify({links: links}));
+    //console.log(links);
 
   });
   
@@ -83,4 +91,4 @@ app.get('/visualization.json', function(req, res) {
   
 });
 app.listen(3010);
-console.log('Listening on port 3000');
+console.log('Listening on port 3010');
