@@ -33,6 +33,7 @@ app.get('/visualization.json', function(req, res) {
   var index = 0;
   var nodes = [];
   var links = [];
+  var test  = [];
 
   // Returns list of all nodes
   db.query("START n = node(*) RETURN n.ipaddr", function(err, results) {
@@ -40,11 +41,15 @@ app.get('/visualization.json', function(req, res) {
       console.log("e: " + err);
     }
 
+    var result;
     // Put the IP addresses into the array
     for (var k in results) {
-      var result = results[k]['n.ipaddr'];
+      result = results[k]['n.ipaddr'];
       nodes.push(result);  
     }
+    test[result] = true;
+
+    console.log(test);
 
     console.log(nodes);
 
