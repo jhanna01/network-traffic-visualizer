@@ -39,7 +39,7 @@ function visualizeIt() {
 		.attr("class", "link")
 		.style("stroke-width", function(d, i) { return (Math.sqrt(d.size)); })
 		.style("stroke", "#999")
-		.style("stroke-opacity", .8)
+		.style("stroke-opacity", .9)
 		.attr("marker-end", "url(#end)");
 
 
@@ -47,9 +47,9 @@ function visualizeIt() {
 		.data(dataSet.nodes)
 	  .enter().append("circle")
 	  	.attr("class", "node")
-	  	// Here we will change nodes radius
 	  	.attr("r", function(d, i) { return setNodeSize(d); })
-	  	//.style("fill", function(d) { return color(d.group)})
+	  	.style("fill", function(d) { return color(d.group)})
+	  	.style("stroke", "black")
 	  	.style("stroke-width", 1.5)
 	  	.call(force.drag);
 
@@ -70,19 +70,29 @@ function visualizeIt() {
 }
 
 /* Helper function to set the node size equal to the sum of its edge sizes.
+ * Sets min and max for the size, and scales it down using the sqrt. 
  */
 function setNodeSize(node) {
-	/*
-	 * 
-	 */
-	var result = 8;
+	var result = 0;
 	var index = node.index;
 
-	for (var i=0; i<index; )
-	for (prop in dataSet.links.target) {
-		console.log(prop);
+	for (prop in dataSet.links) {
+		// get source link index
+		var src = dataSet.links[prop].source.index;
+		// get target link index
+		var targ = dataSet.links[prop].target.index;
+		// Check if source or target index == the node's index. 
+		// If so, add the link (packet) size to the result.
+		if (src == index || targ == index) { result += dataSet.links[prop].size; }
 	} 
 
+	// Use Math.sqrt of result to scale it down.
+	// Use 8 as the default min node size.
+	if (result < 8) { result = 8; }
+	// Use 75 as the default max node size.
+	else if (Math.sqrt(result) > 75) { result = 75; }
+	// Else just use the default.
+	else { result = Math.sqrt(result); }
 	return result;
 }
 
