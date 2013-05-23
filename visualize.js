@@ -1,13 +1,11 @@
-var width = 1100,
-	height = 600,
+var width = 1400,
+	height = 750,
 	dataSet = {};
 
 var color = d3.scale.category20();
 
 // Gives it the physics of the force directed layout
 var force = d3.layout.force()
-	.charge(-120)
-	.linkDistance(30)
 	.size([width, height]);
 
 // Sets up the SVG that will act as our canvas
@@ -23,11 +21,16 @@ d3.json("visualization.json", function(error, json) {
     return 0;
 });
 
-
+/* Performs all the visualization, 
+ * adding nodes and links and setting their attributes / styles 
+ */
 function visualizeIt() {
 	force
 		.nodes(dataSet.nodes)
 		.links(dataSet.links)
+		.charge(-500)
+		.linkDistance(1)
+		.linkStrength(0.1)
 		.start();
 
 	var link = svg.selectAll(".link")
@@ -36,7 +39,7 @@ function visualizeIt() {
 		.attr("class", "link")
 		.style("stroke-width", function(d, i) { return (Math.sqrt(d.size)); })
 		.style("stroke", "#999")
-		.style("stroke-opacity", .7)
+		.style("stroke-opacity", .8)
 		.attr("marker-end", "url(#end)");
 
 
@@ -45,9 +48,9 @@ function visualizeIt() {
 	  .enter().append("circle")
 	  	.attr("class", "node")
 	  	// Here we will change nodes radius
-	  	.attr("r", 10)
+	  	.attr("r", function(d, i) { return setNodeSize(d); })
 	  	//.style("fill", function(d) { return color(d.group)})
-	  	.style("stroke-width", 1.5);
+	  	.style("stroke-width", 1.5)
 	  	.call(force.drag);
 
 	// Node mouse-over label
@@ -64,5 +67,22 @@ function visualizeIt() {
         .attr("cy", function(d) { return d.y; });
   	});
 
+}
+
+/* Helper function to set the node size equal to the sum of its edge sizes.
+ */
+function setNodeSize(node) {
+	/*
+	 * 
+	 */
+	var result = 8;
+	var index = node.index;
+
+	for (var i=0; i<index; )
+	for (prop in dataSet.links.target) {
+		console.log(prop);
+	} 
+
+	return result;
 }
 
